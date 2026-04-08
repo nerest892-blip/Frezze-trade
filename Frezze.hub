@@ -1,0 +1,113 @@
+-- GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = game.CoreGui
+
+local Frame = Instance.new("Frame")
+Frame.Parent = ScreenGui
+Frame.Size = UDim2.new(0, 300, 0, 180) -- БІЛЬШИЙ
+Frame.Position = UDim2.new(0.5, -150, 0.5, -90)
+Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Frame.BorderSizePixel = 0
+
+local UICorner = Instance.new("UICorner", Frame)
+UICorner.CornerRadius = UDim.new(0, 12)
+
+-- 🔥 НАЗВА
+local Title = Instance.new("TextLabel")
+Title.Parent = Frame
+Title.Size = UDim2.new(1, 0, 0, 35)
+Title.Position = UDim2.new(0, 0, 0, 5)
+Title.BackgroundTransparency = 1
+Title.Text = "GLESHUK FREZZE TRADE"
+Title.TextColor3 = Color3.fromRGB(255,255,255)
+Title.TextScaled = true
+Title.Font = Enum.Font.GothamBold
+
+-- Функція створення рядка
+local function createToggle(text, yPos)
+	local Row = Instance.new("Frame")
+	Row.Parent = Frame
+	Row.Size = UDim2.new(1, -30, 0, 45) -- більше місця
+	Row.Position = UDim2.new(0, 15, 0, yPos)
+	Row.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+	Row.BorderSizePixel = 0
+
+	local RowCorner = Instance.new("UICorner", Row)
+	RowCorner.CornerRadius = UDim.new(0, 10)
+
+	local Label = Instance.new("TextLabel")
+	Label.Parent = Row
+	Label.Size = UDim2.new(0.7, 0, 1, 0)
+	Label.Position = UDim2.new(0, 10, 0, 0)
+	Label.BackgroundTransparency = 1
+	Label.Text = text
+	Label.TextColor3 = Color3.fromRGB(255,255,255)
+	Label.TextScaled = true
+	Label.Font = Enum.Font.GothamBold
+	Label.TextXAlignment = Enum.TextXAlignment.Left
+
+	local Indicator = Instance.new("Frame")
+	Indicator.Parent = Row
+	Indicator.Size = UDim2.new(0, 18, 0, 18)
+	Indicator.Position = UDim2.new(1, -30, 0.5, -9)
+	Indicator.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+	Indicator.BorderSizePixel = 0
+
+	local Corner = Instance.new("UICorner", Indicator)
+	Corner.CornerRadius = UDim.new(1, 0)
+
+	local state = false
+
+	Row.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1
+		or input.UserInputType == Enum.UserInputType.Touch then
+			
+			state = not state
+			
+			if state then
+				Indicator.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+			else
+				Indicator.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+			end
+		end
+	end)
+end
+
+-- РЯДКИ (з відступом від назви)
+createToggle("Frezze", 50)
+createToggle("Force accept", 105)
+
+-- Перетягування
+local dragging, dragInput, mousePos, framePos
+
+Frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		mousePos = input.Position
+		framePos = Frame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+Frame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - mousePos
+		Frame.Position = UDim2.new(
+			framePos.X.Scale,
+			framePos.X.Offset + delta.X,
+			framePos.Y.Scale,
+			framePos.Y.Offset + delta.Y
+		)
+	end
+end)
